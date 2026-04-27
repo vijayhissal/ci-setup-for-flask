@@ -1,0 +1,126 @@
+<html>
+<pre>
+STEP 1: Create Flask Application
+📄 app.py
+Writing
+
+from flask import Flask, request
+
+app = Flask(name)
+
+@app.route('/', methods=['GET', 'POST'])
+def form():
+if request.method == 'POST':
+name = request.form['name']
+if name == "":
+return "Error: Name required"
+return "Hello " + name
+
+return '''
+    <form method="post">
+        Name: <input type="text" name="name">
+        <input type="submit" value="Submit">
+    </form>
+'''
+
+if name == 'main':
+app.run(host='0.0.0.0', port=5000)
+
+📄 requirements.txt
+Writing
+
+Flask
+
+⚙️ STEP 2: Create Dockerfile
+Writing
+
+FROM python:3.9
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+CMD ["python", "app.py"]
+
+⚙️ STEP 3: Build & Test Locally
+docker build -t flask-ci-app .
+docker run -d -p 5000:5000 --name flask-container flask-ci-app
+
+👉 Open:
+
+http://localhost:5000
+⚙️ STEP 4: Push Code to GitHub
+git init
+git add .
+git commit -m "Initial Flask CI App"
+git remote add origin https://github.com/your-username/flask-ci.git
+git push -u origin main
+⚙️ STEP 5: Configure Jenkins Job
+Open Jenkins
+Click New Item → Freestyle Project
+Name: Flask-CI
+🔹 Source Code Management
+Select Git
+Paste GitHub repo URL
+🔹 Build Trigger (IMPORTANT)
+
+Enable:
+
+Poll SCM
+
+Schedule:
+
+* * * * *
+
+👉 Checks for new commits every minute
+
+⚙️ STEP 6: Add Build Commands
+
+👉 Build → Execute Windows Batch Command
+
+echo Removing old container
+docker rm -f flask-container 2>nul
+
+echo Running test
+findstr "Flask" requirements.txt
+
+IF %ERRORLEVEL% == 0 (
+echo Test Passed ✅
+) ELSE (
+echo Test Failed ❌
+exit /b 1
+)
+
+echo Building Docker image
+docker build -t flask-ci-app .
+
+echo Running container
+docker run -d -p 5000:5000 --name flask-container flask-ci-app
+⚙️ STEP 7: Run Build
+
+👉 Click Build Now
+
+✔ Jenkins will:
+
+Fetch code from GitHub
+Run test
+Build Docker image
+Deploy container
+🔁 STEP 8: Demonstrate CI (VERY IMPORTANT)
+
+👉 Modify app.py:
+
+return "Hello CI Updated"
+
+Then:
+
+git add .
+git commit -m "Updated"
+git push
+
+👉 Jenkins will automatically trigger build ✔
+</pre>
+
+</html>
