@@ -12,7 +12,8 @@ def form():
     else:
         return '''
             <form method="post">
-                Name: <input type="text" name="name">
+                Name: <input type="text" name="name"><br><br>
+                Email: <input type="text" name="name">
                 <input type="submit" value="Submit">
             </form>
         '''
